@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
+ 
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -63,26 +65,42 @@ public class QuickTest extends HttpServlet {
                 conn = DriverManager.getConnection(url + dbName, userName, password);
                 System.out.println("Connected to the database");
 
+                
+                //----Add a custom sanitizer-----------------------------------------------------------------------------------            
+                // Highlight fixThis and right click to add fixThis as a custom sanitizer to the Find_SQL_Sanitize rule. 
+                // The overidden rule should look something like this
+                // 
+                //   result = base.Find_SQL_Sanitize();
+                //   result.Add(All.FindByName("QuickTest.processRequest.testSample.fixThis") +
+                //   All.FindAllReferences(All.FindDefinition(All.FindByName("QuickTest.processRequest.testSample.fixThis"))) +
+                //   All.FindAllReferences(All.FindByName("QuickTest.processRequest.testSample.fixThis"))+ 
+                //   All.FindByMemberAccess("myClass.fixThis"));
+                //------------------------------------------------------------------------------------------------------------- 
+
+
+                
+                //---Classic SQL Injection--------------------------------------------------------------------------
                 Statement st = conn.createStatement();
                 String query = "SELECT * FROM  User where userid='" + user + "'";
-                out.println("Query : " + query);
-
-                // PreparedStatement
-                // preparedStatement=conn.prepareStatement("SELECT * FROM  usercheck where username=?")
-                // ;
-                // preparedStatement.setString(1, user);
-
-                System.out.printf(query);
-				
-				query=testSample.fixThis(query);
+                query=testSample.fixThis(query);
                 ResultSet res = st.executeQuery(query);
+                //--------------------------------------------------------------------------------------------------
 
-                // ResultSet res = preparedStatement.executeQuery();
+                out.println("Query : " + query);   
+//               //---Parameterize Query Instead--------------------------------------------------------------------------
+//               PreparedStatement st=conn.prepareStatement("SELECT * FROM  usercheck where username=?");
+//               st.setString(1, user);
+//               ResultSet res = st.executeQuery();
+//               //---------------------------------------------------------------------------------------  
+                
+
                 out.println("<br/><br/>Results");
                 while (res.next()) {
                     // int i = res.getInt("Emp_code");
                     String s = res.getString("userId");
                     out.println("<br/><br/>\t\t" + s);
+ 
+              
                 }
 
                 conn.close();
